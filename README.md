@@ -26,7 +26,7 @@ The richer musical traits that are available from MIDI files are:
 * Spark
 * Flask
 
-## Project definition
+## Project Scope
 ### In scope
 * Build a new method to analyze music
 * Enables ML engineers to improve recommendation

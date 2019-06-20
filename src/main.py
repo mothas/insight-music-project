@@ -1,4 +1,5 @@
 from io import BytesIO
+from pyspark.sql import *
 import boto3
 import pretty_midi
 

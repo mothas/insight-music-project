@@ -22,6 +22,8 @@ def spark_conf():
     spark = SparkSession.builder.getOrCreate()
     return spark
 
+spark = spark_conf()
+
 Song_Instrument = Row("filename", "instrument")
 song_instrument_seq = []
 

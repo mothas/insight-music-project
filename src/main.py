@@ -4,6 +4,7 @@ from pyspark import SparkConf
 from pyspark import SparkContext
 import boto3
 import pretty_midi
+import os
 
 s3 = boto3.resource('s3')
 boto_client = boto3.client('s3')
@@ -48,5 +49,16 @@ for obj in bucket.objects.all():
 
 df_song_instrument = spark.createDataFrame(song_instrument_seq)
 
+postgresql_user = os.environ.get('POSTGRESQL_USER')
+postgresql_password = os.environ.get('POSTGRESQL_PWD')
+
 print('!!! COUNT: ', df_song_instrument.count())
 print('!!! number_of_song_instruments: ', number_of_song_instruments)
+
+df_song_instrument.write \
+    .format("jdbc") \
+    .option("url", "jdbc:postgresql://10.0.0.13:2762/lmd") \
+    .option("dbtable", "song_instrument") \
+    .option("user", postgresql_user) \
+    .option("password", postgresql_password) \
+    .save()

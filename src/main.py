@@ -54,6 +54,8 @@ postgresql_password = os.environ.get('POSTGRESQL_PWD')
 
 print('!!! COUNT: ', df_song_instrument.count())
 print('!!! number_of_song_instruments: ', number_of_song_instruments)
+print('!!! postgresql_user: ', postgresql_user)
+print('!!! postgresql_password: ', postgresql_password)
 
 df_song_instrument.write \
     .format("jdbc") \

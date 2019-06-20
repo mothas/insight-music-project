@@ -49,3 +49,4 @@ for obj in bucket.objects.all():
 df_song_instrument = spark.createDataFrame(song_instrument_seq)
 
 print('!!! COUNT: ', df_song_instrument.count())
+print('!!! number_of_song_instruments: ', number_of_song_instruments)

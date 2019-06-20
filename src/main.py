@@ -1,5 +1,7 @@
 from io import BytesIO
 from pyspark.sql import *
+from pyspark import SparkConf
+from pyspark import SparkContext
 import boto3
 import pretty_midi
 

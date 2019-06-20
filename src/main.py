@@ -41,7 +41,7 @@ for obj in bucket.objects.all():
         number_of_valid_files+=1
         for instrument in pretty_midi_obj.instruments:
             #print('!!! instrument', instrument)
-            song_instrument_seq.append(Song_Instrument(s3_key,instrument.program))
+            song_instrument_seq.append(Song_Instrument(s3_key,int(instrument.program)))
     except:
         invalid_files.append(s3_key)
         number_of_invalid_files+=1

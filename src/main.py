@@ -15,15 +15,20 @@ import pretty_midi
 import min_hash
 import os
 import sys
+import time
 
-#s3_bucket = 'midi-files-partial'
-s3_bucket = 'midi-files-sample1'
+#s3_bucket = 'midi-files-partial'   # 35
+#s3_bucket = 'midi-files-sample1'  # 401
+s3_bucket = 'midi-files-sample2'  # 11258
+#s3_bucket = 'midi-files-full'
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)) + "/config")
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)) + "/lib")
 import config
 import locality_sensitive_hash
 import util
+
+time_seq = []
 
 #Define Spark Configuration
 def spark_conf():
@@ -46,22 +51,26 @@ def write_df_to_pgsql(df, table_name):
         .save()
 
 def process_df(df):
+    time_seq.append(['start process-df', time.time()])
     model = Pipeline(stages = [RegexTokenizer(pattern = " ", inputCol = "instruments", outputCol = "instruments_tokenized", minTokenLength = 1),
                            NGram(n = 1, inputCol = "instruments_tokenized", outputCol = "instruments_ngrams"),
                            HashingTF(inputCol = "instruments_ngrams", outputCol = "instruments_vectors"),
                            MinHashLSH(inputCol = "instruments_vectors", outputCol = "instruments_lsh", numHashTables = 10)]).fit(df)
 
     df_hashed = model.transform(df)
-    #df_hashed.show(15)
-    df_matches = model.stages[-1].approxSimilarityJoin(df_hashed, df_hashed, 0.5, distCol="JaccardDistance").select(
-                f.col('datasetA.filename').alias('filename_A'),
+    df_matches = model.stages[-1].approxSimilarityJoin(df_hashed, df_hashed, 0.5, distCol="distance") \
+        .filter("datasetA.filename != datasetB.filename AND datasetA.filename < datasetB.filename") \
+        .select(f.col('datasetA.filename').alias('filename_A'),
                 f.col('datasetB.filename').alias('filename_B'),
-                f.col('JaccardDistance'))
-    #df_matches.show(15)
-    write_df_to_pgsql(df_matches, 'filepair_similarity5')
+                f.col('distance'))
+    time_seq.append(['process-df df_matches', time.time()])
+    write_df_to_pgsql(df_matches, 'filepair_similarity_run3')
+    time_seq.append(['write pgsql', time.time()])
+    print('time_seq', time_seq)
 
 #Read all MIDI files from S3 bucket
 def read_midi_files():
+    time_seq.append(['start-read-midi', time.time()])
     invalid_files = []
     number_of_files = 0
     number_of_valid_files = 0
@@ -74,7 +83,11 @@ def read_midi_files():
 
     #DataFrame schema
     File_Instruments = Row("filename", "instruments")
+    Filename_Instrument = Row("filename", "instrument")
+    # stores (filename, list(instrument))
     filename_instruments_seq = []
+    # stores (filename, instrument) This is denormalized format of above. A filename will have an entry for each instrument.
+    filename_instrument_seq = []
 
     for obj in bucket.objects.all():
         number_of_files+=1
@@ -88,13 +101,19 @@ def read_midi_files():
             instruments_list = list(map(lambda x: str(x.program), pretty_midi_obj.instruments))
             instruments_list_set = set(instruments_list)
             instruments_list_uniq = list(instruments_list_set)
-            instruments = " ".join(instruments_list_uniq)
+            for instrument in instruments_list_uniq:
+                filename_instrument_seq.append(Filename_Instrument(filename, instrument))
+            instruments_str = " ".join(instruments_list_uniq)
             if(len(instruments_list_uniq) >=3):
-                filename_instruments_seq.append(File_Instruments(filename,instruments))
+                filename_instruments_seq.append(File_Instruments(filename,instruments_str))
         except:
             invalid_files.append(s3_key)
+    time_seq.append(['end read-file', time.time()])
+    df_filename_instrument = spark.createDataFrame(filename_instrument_seq)
+    write_df_to_pgsql(df_filename_instrument, 'filename_instrument_run3')
     df_song_instrument = spark.createDataFrame(filename_instruments_seq)
     process_df(df_song_instrument)
 
 if __name__ == '__main__':
+    time_seq.append(['start', time.time()])
     read_midi_files()

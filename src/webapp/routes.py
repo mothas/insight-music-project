@@ -1,12 +1,11 @@
-from flask import Flask, send_file, jsonify, session
-#from flask.ext.session import Session
+from flask import Flask, send_file, jsonify, session, request
 import psycopg2
 import config
+import json
 import re
 
 app = Flask(__name__)
-app.secret_key = 'sdf92h24ufwdfj239#52j9'
-#sess = Session()
+app.secret_key = config.APP_SECRET_KEY
 
 @app.route("/")
 def index():
@@ -52,8 +51,6 @@ def load_index_page():
     conn.close()
     return jsonify(songs_by_instrument)
 
-#@app.route("/get_similar_songs/<filename>")
-#def get_similar_songs(filename):
 @app.route("/get_similar_songs")
 def get_similar_songs():
     filename = session['filename']
@@ -73,7 +70,33 @@ def get_similar_songs():
             'JOIN hash_name hn ON hn.hash = tbl1.similar_song_filename;'
     cur.execute(query)
     songnames = list(map(lambda x: { 'filename': x[0], 'songname': clean_text(x[1]), 'similarity': x[2] }, cur))
+    cur.close()
+    conn.close()
     return jsonify(songnames)
+
+@app.route("/get_songs_for_instruments", methods=['GET', 'POST'])
+def get_songs_for_instruments():
+    if request.method == 'POST':
+        content = request.json
+        instrument = content['instruments']
+        query = 'SELECT fi.filename, hn.song_name, COUNT(fi.instrument) ' + \
+                'FROM ( ' + \
+                '       SELECT filename ' + \
+                '       FROM filename_instrument_run3 ' + \
+                '       WHERE instrument = \'' + instrument + '\' ' + \
+                ' ) tbl ' + \
+                'JOIN hash_name hn ON hn.hash = tbl.filename ' + \
+                'JOIN filename_instrument_run3 fi ON fi.filename = tbl.filename ' + \
+                'GROUP BY fi.filename, hn.song_name;'
+        print "query @@@"
+        print query
+        conn = psycopg2.connect(dbname=config.PGSQL_DBNAME, user=config.PGSQL_USER, password=config.PGSQL_PASSWORD, host=config.PGSQL_HOST, port=config.PGSQL_PORT)
+        cur = conn.cursor()
+        cur.execute(query)
+        filenames = list(map(lambda x: {'filename': x[0], 'song_name': x[1], 'num_of_inst': x[2]}, cur))
+        cur.close()
+        conn.close()
+        return jsonify(filenames)
 
 def clean_text(txt):
     return re.sub('[^A-Za-z0-9\']+', ' ', txt).lower().title()

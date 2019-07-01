@@ -1,6 +1,50 @@
 $(document).ready(function(){
-  load_songList();
+  $("#instruments").select2({
+    placeholder: 'Select 1 or more instruments',
+    allowClear: true
+  });
+  $('#instruments').on('select2:select', function (e) {
+    var instruments = $('#instruments').val();
+    fetch_songs_for_instruments(instruments);
+  });
 });
+
+function fetch_songs_for_instruments(instruments) {
+  var postObj = { 'instruments': instruments };
+  console.log('postObj', JSON.stringify(postObj));
+  var success = function(data,status) {
+    var data_song = data.map(function(a) {
+      var link_to_similarSongs = '<a target="_blank" href="/show_similar_songs/' + a.filename + '">Link</a>';
+      return [a.song_name, a.num_of_inst, link_to_similarSongs];
+    })
+    console.log('data_song: ' + JSON.stringify(data_song));
+    if($('#songs_for_instrument_table_wrapper').length) {
+      $('#songs_for_instrument_table').DataTable().clear().destroy();
+    }
+    $('#songs_for_instrument_table').DataTable( {
+      data: data_song,
+      columns: [  { title: "Song Name" },
+                  { title: "Number of Instruments" },
+                  { title: "Similar Songs"} ],
+      "order": [[ 1, "desc" ]],
+      "language": {
+          "lengthMenu": "Show _MENU_ songs",
+          "zeroRecords": "No songs to show",
+          "info": "Showing _START_ to _END_ of _TOTAL_ songs",
+          "infoEmpty":      "No songs",
+          "infoFiltered":   "(filtered from _MAX_ songs)"
+      }
+    });
+  };
+  $.ajax({
+    type: "POST",
+    url: '/get_songs_for_instruments',
+    contentType: 'application/json',
+    data: JSON.stringify(postObj),
+    dataType: 'json',
+    success: success
+  });
+}
 
 function load_songList() {
   $.get("load_index", function(data, status){

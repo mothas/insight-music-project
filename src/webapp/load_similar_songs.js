@@ -8,8 +8,6 @@ function load_similar_songs() {
       var similarity_score = Math.round(a.similarity * 100) / 100
       return [a.songname, similarity_score];
     });
-    console.log('here 3');
-    console.log('dataSet: ' + JSON.stringify(dataSet));
     $('#similar_songs_table').DataTable( {
       data: dataSet,
       columns: [  { title: "Song Name" },

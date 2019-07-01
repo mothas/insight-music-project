@@ -57,7 +57,6 @@ def load_index_page():
 @app.route("/get_similar_songs")
 def get_similar_songs():
     filename = session['filename']
-    print('here 2',filename)
     conn = psycopg2.connect(dbname=config.PGSQL_DBNAME, user=config.PGSQL_USER, password=config.PGSQL_PASSWORD, host=config.PGSQL_HOST, port=config.PGSQL_PORT)
     cur = conn.cursor()
     query = 'SELECT similar_song_filename, hn.song_name, similarity_score ' + \
@@ -73,7 +72,6 @@ def get_similar_songs():
             ' 	 ) AS tbl1 ' + \
             'JOIN hash_name hn ON hn.hash = tbl1.similar_song_filename;'
     cur.execute(query)
-    print(query)
     songnames = list(map(lambda x: { 'filename': x[0], 'songname': clean_text(x[1]), 'similarity': x[2] }, cur))
     return jsonify(songnames)
 
@@ -81,7 +79,4 @@ def clean_text(txt):
     return re.sub('[^A-Za-z0-9\']+', ' ', txt).lower().title()
 
 if __name__ == "__main__":
-
-    #app.config['SESSION_TYPE'] = 'filesystem'
-    #sess.init_app(app)
-    app.run()
+    app.run(port="80", host="0.0.0.0")

@@ -79,7 +79,8 @@ def get_songs_for_instruments():
     if request.method == 'POST':
         content = request.json
         instrument = content['instruments']
-        query = 'SELECT fi.filename, hn.song_name, COUNT(fi.instrument) ' + \
+        query = 'SELECT fi.filename, hn.song_name, COUNT(DISTINCT fi.instrument) num_of_instruments, ' + \
+                '       COUNT(fs.distance) / COUNT(DISTINCT fi.instrument) AS num_of_simSongs ' + \
                 'FROM ( ' + \
                 '       SELECT filename ' + \
                 '       FROM filename_instrument_run3 ' + \
@@ -87,13 +88,14 @@ def get_songs_for_instruments():
                 ' ) tbl ' + \
                 'JOIN hash_name hn ON hn.hash = tbl.filename ' + \
                 'JOIN filename_instrument_run3 fi ON fi.filename = tbl.filename ' + \
+                'JOIN filepair_similarity_run3 fs ON (fs."filename_A" = tbl.filename OR fs."filename_B" = tbl.filename ) ' + \
                 'GROUP BY fi.filename, hn.song_name;'
         print "query @@@"
         print query
         conn = psycopg2.connect(dbname=config.PGSQL_DBNAME, user=config.PGSQL_USER, password=config.PGSQL_PASSWORD, host=config.PGSQL_HOST, port=config.PGSQL_PORT)
         cur = conn.cursor()
         cur.execute(query)
-        filenames = list(map(lambda x: {'filename': x[0], 'song_name': x[1], 'num_of_inst': x[2]}, cur))
+        filenames = list(map(lambda x: {'filename': x[0], 'song_name': x[1], 'num_of_inst': x[2], 'num_of_simSongs': x[3] }, cur))
         cur.close()
         conn.close()
         return jsonify(filenames)

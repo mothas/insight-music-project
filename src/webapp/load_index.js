@@ -1,6 +1,6 @@
 $(document).ready(function(){
   $("#instruments").select2({
-    placeholder: 'Select 1 or more instruments',
+    placeholder: 'Select/search 1 instrument',
     allowClear: true
   });
   $('#instruments').on('select2:select', function (e) {
@@ -11,13 +11,11 @@ $(document).ready(function(){
 
 function fetch_songs_for_instruments(instruments) {
   var postObj = { 'instruments': instruments };
-  console.log('postObj', JSON.stringify(postObj));
   var success = function(data,status) {
     var data_song = data.map(function(a) {
       var link_to_similarSongs = '<a target="_blank" href="/show_similar_songs/' + a.filename + '">Link</a>';
-      return [a.song_name, a.num_of_inst, link_to_similarSongs];
+      return [a.song_name, a.num_of_inst, a.num_of_simSongs, link_to_similarSongs];
     })
-    console.log('data_song: ' + JSON.stringify(data_song));
     if($('#songs_for_instrument_table_wrapper').length) {
       $('#songs_for_instrument_table').DataTable().clear().destroy();
     }
@@ -25,7 +23,8 @@ function fetch_songs_for_instruments(instruments) {
       data: data_song,
       columns: [  { title: "Song Name" },
                   { title: "Number of Instruments" },
-                  { title: "Similar Songs"} ],
+                  { title: "Number of Similar Songs" },
+                  { title: "Link to Similar Songs"} ],
       "order": [[ 1, "desc" ]],
       "language": {
           "lengthMenu": "Show _MENU_ songs",

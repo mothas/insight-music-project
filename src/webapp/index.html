@@ -9,9 +9,13 @@
         width: 60%;
         margin: 0 auto;
       }
+      .html_body {
+        margin-left: 5%;
+        margin-right: 5%
+      }
     </style>
   </head>
-  <body>
+  <body class="html_body">
     <script src="https://code.jquery.com/jquery-3.3.1.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.7/css/select2.min.css" rel="stylesheet" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.7/js/select2.min.js"></script>
@@ -22,6 +26,11 @@
     <link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/dataTables.semanticui.min.css">
     <script src="/load_index.js" type="text/javascript"></script>
 
+    <h1>Scale - Build a playlist for the Musician in you</h1>
+    This app lets your explore songs by the instruments used in a song. Start off by selecting a song from the
+    menu below.
+    <br>
+    <br>
     <select class="js-example-basic-single" style="width:300px" id="instruments">
       <optgroup label="Piano">
         <option></option>
@@ -185,6 +194,9 @@
         <option value="127">Gunshot</option>
     </select>
 
+    <br>
+    <br>
+    
     <table id="songs_for_instrument_table" class="ui celled table" style="width:100%"></table>
   </body>
 </html>

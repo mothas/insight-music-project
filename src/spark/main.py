@@ -3,7 +3,7 @@ import pyspark.sql.functions as f
 from pyspark import SparkConf
 from pyspark import SparkContext
 from pyspark.ml import Pipeline
-from pyspark.ml.feature import RegexTokenizer, Tokenizer, NGram, HashingTF, MinHashLSH
+from pyspark.ml.feature import RegexTokenizer, NGram, HashingTF, MinHashLSH
 
 from itertools import combinations
 from termcolor import colored

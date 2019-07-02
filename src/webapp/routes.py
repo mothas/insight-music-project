@@ -55,8 +55,8 @@ def load_index_page():
 def get_similar_songs():
     filename = session['filename']
     conn = psycopg2.connect(dbname=config.PGSQL_DBNAME, user=config.PGSQL_USER, password=config.PGSQL_PASSWORD, host=config.PGSQL_HOST, port=config.PGSQL_PORT)
-    cur = conn.cursor()
-    query = 'SELECT similar_song_filename, hn.song_name, similarity_score ' + \
+    cur1 = conn.cursor()
+    query = 'SELECT similar_song_filename, hn.song_name, similarity_score, COUNT(fi.instrument), array_agg(fi.instrument) ' + \
             '  FROM ( ' + \
             '	 SELECT (1 - distance) AS similarity_score, ' +\
             '        CASE WHEN fs."filename_A" = \'' + filename + '\' THEN "filename_B" ' + \
@@ -67,12 +67,26 @@ def get_similar_songs():
             ' 		     OR "filename_B" = \'' + filename + '\' ) ' + \
             '	 ORDER BY distance ' + \
             ' 	 ) AS tbl1 ' + \
-            'JOIN hash_name hn ON hn.hash = tbl1.similar_song_filename;'
-    cur.execute(query)
-    songnames = list(map(lambda x: { 'filename': x[0], 'songname': clean_text(x[1]), 'similarity': x[2] }, cur))
-    cur.close()
+            'JOIN hash_name hn ON hn.hash = tbl1.similar_song_filename ' + \
+            'JOIN filename_instrument_run3 fi ON fi.filename = similar_song_filename ' + \
+            'GROUP BY similar_song_filename, hn.song_name, similarity_score;'
+    cur1.execute(query)
+    similar_songnames = list(map(lambda x: { 'filename': x[0], 'songname': clean_text(x[1]),
+                                    'similarity': x[2], 'num_of_inst': x[3], 'instrument_code': x[4] }, cur1))
+    cur1.close()
+    cur2 = conn.cursor()
+    query2 ='SELECT hn.hash, hn.song_name, array_agg(fi.instrument) ' + \
+            '  FROM filename_instrument_run3 fi ' + \
+            '  JOIN hash_name hn ON hn.hash = \'' + filename + '\' ' + \
+            ' WHERE filename = \'' + filename + '\' ' + \
+            ' GROUP BY hn.hash'
+    cur2.execute(query2)
+    song_info = list(map(lambda x: { 'filename': x[0], 'songname': clean_text(x[1]),
+                                     'instruments': x[2]}, cur2 ))
+
     conn.close()
-    return jsonify(songnames)
+    respObj = { 'song_info': song_info, 'similar_songs': similar_songnames }
+    return jsonify(respObj)
 
 @app.route("/get_songs_for_instruments", methods=['GET', 'POST'])
 def get_songs_for_instruments():
@@ -90,8 +104,6 @@ def get_songs_for_instruments():
                 'JOIN filename_instrument_run3 fi ON fi.filename = tbl.filename ' + \
                 'JOIN filepair_similarity_run3 fs ON (fs."filename_A" = tbl.filename OR fs."filename_B" = tbl.filename ) ' + \
                 'GROUP BY fi.filename, hn.song_name;'
-        print "query @@@"
-        print query
         conn = psycopg2.connect(dbname=config.PGSQL_DBNAME, user=config.PGSQL_USER, password=config.PGSQL_PASSWORD, host=config.PGSQL_HOST, port=config.PGSQL_PORT)
         cur = conn.cursor()
         cur.execute(query)

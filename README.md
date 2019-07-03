@@ -13,6 +13,8 @@ I used MIDI files - a file format that was established in the 1980's. It's still
 
 
 ![MIDI file in Garage Band](assets/MIDI file - Garage Band 2.png)
+![MIDI file](assets/MIDI file - Garage Band 2.png?raw=true "Optional Title")
+
 
 
 ## Solution

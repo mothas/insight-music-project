@@ -1,13 +1,20 @@
-# Music Recommendation using music-elements
+# Scale
+**Scale** is a project I built when I was a Data Engineering Fellow at Insight Data Science. It focusses on analyzing the content of a song using MIDI files.
+
+### Motivation
+Everybody loves listening to new music. That has led to various kinds of Music Recommendation engines using different techniques like:
+* **Collaborative Filtering**: based on user's listening behavior. This fails to recommend new and good songs.
+* **Raw Audio Signal analysis**: Attempts to find good and new songs based on similar instruments. It's not a definitive analysis as same instruments could be present in 2 songs playing in different scale(pitch) and the analysis would fail to gauge the similarity.
+
+These approaches fails to find equivalence that can readily gauged using MIDI files.
+
+### Solution
+I used MIDI files - a file format that was established in the 1980's. It's still a very popular file format now. It's used by musicians as it essentially is a digital version of music score. I used a dataset of MIDI files to find similar songs within that dataset.
 
 
-## Use Case
-This project enables us to compare and match songs purely based on their musical features, as opposed to audio-signal elements. It creates a new pipeline consisting purely of musical features. This pipeline is fed to a ML model to figure out the best features to use. The ML part is NOT in the scope of this project. This project explores in how to extract useful musical features from MIDI files.
+![MIDI file](assets/MIDI_file.png?raw=true "Optional Title")
 
-## Motivation
-Spotify's current raw audio-signal analysis is a step in the right direction to analyze new and unpopular songs. But it fails to match songs in a musical realm. They are missing out on recommending songs that are very relevant and already in their library.
 
-Raw analysis reveals only a few musical traits.
 
 ## Solution
 MIDI files to the rescue! They allow us to analyze music is the realm of music - as opposed to audio signal realm.

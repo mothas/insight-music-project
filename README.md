@@ -12,7 +12,7 @@ These approaches fails to find equivalence that can readily gauged using MIDI fi
 I used MIDI files - a file format that was established in the 1980's. It's still a very popular file format now. It's used by musicians as it essentially is a digital version of music score. I used a dataset of MIDI files to find similar songs within that dataset.
 
 
-![MIDI file](assets/MIDI file - Garage Band 2.png?raw=true "Optional Title")
+![MIDI file](assets/MIDI_file.png?raw=true "Optional Title")
 
 
 

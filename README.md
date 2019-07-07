@@ -11,34 +11,11 @@ These approaches fails to find equivalence that can readily gauged using MIDI fi
 ### Solution
 I used MIDI files - a file format that was established in the 1980's. It's still a very popular file format now. It's used by musicians as it essentially is a digital version of music score. I used a dataset of MIDI files to find similar songs within that dataset.
 
+![MIDI file](assets/MIDI_file.png?raw=true "MIDI File in Garage Band")
+*MIDI file opened in Garage Band. Note the list of instruments shown on the left side.*
 
-![MIDI file](assets/MIDI_file.png?raw=true "Optional Title")
+For every MIDI file, we can fetch the list of instruments used in a song. I used this list of instruments to gauge the similarity between songs - based on the number of shared instruments.
 
-
-
-## Solution
-MIDI files to the rescue! They allow us to analyze music is the realm of music - as opposed to audio signal realm.
-
-The richer musical traits that are available from MIDI files are:
-* Notes
-* Chords
-* Key signature
-* Rhythm
-* Note progression
-* Chord progression
-* Time signature
-
-## Tech Stack
-* AWS S3
-* Spark
-* Flask
-
-## Project Scope
-### In scope
-* Build a new method to analyze music
-* Enables ML engineers to improve recommendation
-
-### NOT in scope
-* Figure out the best musical features to compare songs
-  * Could be chord progression OR rhythm progression
-  * It is purely a ML task
+### Tech Stack
+![Tech Stack](assets/Tech_Stack.png?raw=true "Tech Stack used in project")
+*Tools used in this project*

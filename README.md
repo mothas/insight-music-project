@@ -38,6 +38,7 @@ I have shown how the data pipeline was architected for this project using the to
   * `filepair_similarity_score`: Has the *similarity-score* for every song pair.
 
 ## Links
+* [Project Demo](http://www.deproject.xyz/)
 * [Presentation Slides](http://bit.ly/scale-deproject)
 * [`pretty_midi` Python Package](https://pypi.org/project/pretty_midi/)
 * [MIDI files dataset](https://colinraffel.com/projects/lmd/)

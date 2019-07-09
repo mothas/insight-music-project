@@ -1,14 +1,14 @@
 # Scale
-**Scale** is a project I built when I was a Data Engineering Fellow at Insight Data Science. It focusses on finding similar songs based on the number of shared instruments in a song.
+**Scale** is a project I built when I was a Data Engineering Fellow at Insight Data Science. It is a new kind of **Music Recommendation** engine that focusses on finding similar songs based on the shared instruments in a pair of songs.
 
-### Motivation
+## Motivation
 Everybody loves listening to new music. That has led to various kinds of Music Recommendation engines using different techniques like:
 * **Collaborative Filtering**: based on user's listening behavior. This fails to recommend new and good songs.
 * **Raw Audio Signal analysis**: Attempts to find good and new songs based on similar instruments. It's not a definitive analysis as same instruments could be present in 2 songs playing in different scale(pitch) and the analysis would fail to gauge the similarity.
 
-These approaches fails to find equivalence that can readily gauged using MIDI files.
+These approaches fails to find equivalence that can be readily gauged using MIDI files.
 
-### Solution
+## Solution
 I used MIDI files - a file format that was established in the 1980's. It's still a very popular file format now. It's used by musicians as it essentially is a digital version of music score. I used a dataset of MIDI files to find similar songs within that dataset.
 
 ![MIDI file](assets/MIDI_file.png?raw=true "MIDI File in Garage Band")
@@ -16,13 +16,13 @@ I used MIDI files - a file format that was established in the 1980's. It's still
 
 For every MIDI file, we can fetch the list of instruments used in a song. I used this list of instruments to gauge the similarity between songs - based on the number of shared instruments.
 
-### Similarity Score
+## Similarity Score
 The similarity score between a pair of songs is computed based on the number of shared instruments. The below picture elaborates on this using an example.
 
 ![Similarity SCore](assets/Similarity_Score.png?raw=true "Method of computing Similarity Score between a pair of songs")
 *Method of computing Similarity Score between a pair of songs*
 
-### Tech Stack
+## Tech Stack
 
 I have shown how the data pipeline was architected for this project using the tools shown below.
 
@@ -36,3 +36,8 @@ I have shown how the data pipeline was architected for this project using the to
 * **PostgreSQL**: The following tables were created based on Spark job:
   * `filename_instrument`: Stores a row for every instrument used in a song.
   * `filepair_similarity_score`: Has the *similarity-score* for every song pair.
+
+## Links
+* [Presentation Slides](http://bit.ly/scale-deproject)
+* [`pretty_midi` Python Package](https://pypi.org/project/pretty_midi/)
+* [MIDI files dataset](https://colinraffel.com/projects/lmd/)

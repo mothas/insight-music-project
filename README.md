@@ -1,5 +1,5 @@
 # Scale
-**Scale** is a project I built when I was a Data Engineering Fellow at Insight Data Science. It focusses on analyzing the content of a song using MIDI files.
+**Scale** is a project I built when I was a Data Engineering Fellow at Insight Data Science. It focusses on finding similar songs based on the number of shared instruments in a song.
 
 ### Motivation
 Everybody loves listening to new music. That has led to various kinds of Music Recommendation engines using different techniques like:
@@ -19,3 +19,9 @@ For every MIDI file, we can fetch the list of instruments used in a song. I used
 ### Tech Stack
 ![Tech Stack](assets/Tech_Stack.png?raw=true "Tech Stack used in project")
 *Tools used in this project*
+
+### Similarity Score
+The similarity score between a pair of songs is computed based on the number of shared instruments. The below picture elaborates on this using an example.
+
+![Similarity SCore](assets/Similarity_Score.png?raw=true "Method of computing Similarity Score between a pair of songs")
+*Method of computing Similarity Score between a pair of songs*

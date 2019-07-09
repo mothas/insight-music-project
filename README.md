@@ -16,12 +16,23 @@ I used MIDI files - a file format that was established in the 1980's. It's still
 
 For every MIDI file, we can fetch the list of instruments used in a song. I used this list of instruments to gauge the similarity between songs - based on the number of shared instruments.
 
-### Tech Stack
-![Tech Stack](assets/Tech_Stack.png?raw=true "Tech Stack used in project")
-*Tools used in this project*
-
 ### Similarity Score
 The similarity score between a pair of songs is computed based on the number of shared instruments. The below picture elaborates on this using an example.
 
 ![Similarity SCore](assets/Similarity_Score.png?raw=true "Method of computing Similarity Score between a pair of songs")
 *Method of computing Similarity Score between a pair of songs*
+
+### Tech Stack
+
+I have shown how the data pipeline was architected for this project using the tools shown below.
+
+![Tech Stack](assets/Tech_Stack.png?raw=true "Tech Stack used in project")
+*Tools used in this project*
+
+* **AWS S3**: All the MIDI files were hosted on S3. This was chosen for it's affordable storage plans.
+* **Spark**: Apache Spark was used for 2 purposes:
+  * Extract list of *instruments* used in a song. This was done using Python Package `pretty_midi`.
+  * Computer Similarity Score for every song pairs using `MinHash`.
+* **PostgreSQL**: The following tables were created based on Spark job:
+  * `filename_instrument`: Stores a row for every instrument used in a song.
+  * `filepair_similarity_score`: Has the *similarity-score* for every song pair.

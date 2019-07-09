@@ -41,7 +41,7 @@ function load_similar_songs() {
                   { title: "Similarity Score" },
                   { title: "Num of Instruments" },
                   { title: "Num of Shared Instruments" },
-                  { title: "Instruments" }],
+                  { title: "Instruments (Shared Instruments shown in <span class=\"ins_present\">green</span>)" }],
       "order": [[ 1, "desc" ]],
       "language": {
           "lengthMenu": "Show _MENU_ songs",

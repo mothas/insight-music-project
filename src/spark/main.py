@@ -5,28 +5,18 @@ from pyspark import SparkContext
 from pyspark.ml import Pipeline
 from pyspark.ml.feature import RegexTokenizer, NGram, HashingTF, MinHashLSH
 
-from itertools import combinations
-from termcolor import colored
-#from datasketch import MinHash
 from io import BytesIO
 
 import boto3
 import pretty_midi
-import min_hash
 import os
 import sys
 import time
 
-#s3_bucket = 'midi-files-partial'   # 35
-#s3_bucket = 'midi-files-sample1'  # 401
 s3_bucket = 'midi-files-sample2'  # 11258
-#s3_bucket = 'midi-files-full'
 
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)) + "/config")
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)) + "/lib")
 import config
-import locality_sensitive_hash
-import util
 
 time_seq = []
 
@@ -39,6 +29,7 @@ def spark_conf():
 
 spark = spark_conf()
 
+#Function to write spark-dataframe to PostgreSQL
 def write_df_to_pgsql(df, table_name):
     postgresql_user = os.environ.get('POSTGRESQL_USER')
     postgresql_password = os.environ.get('POSTGRESQL_PWD')
@@ -50,6 +41,7 @@ def write_df_to_pgsql(df, table_name):
         .option("password", postgresql_password) \
         .save()
 
+#Compute Similarity Score for song pairs
 def process_df(df):
     time_seq.append(['start process-df', time.time()])
     model = Pipeline(stages = [RegexTokenizer(pattern = " ", inputCol = "instruments", outputCol = "instruments_tokenized", minTokenLength = 1),
@@ -81,7 +73,7 @@ def read_midi_files():
     boto_client = boto3.client('s3')
     bucket = s3.Bucket(s3_bucket)
 
-    #DataFrame schema
+    # DataFrame schema
     File_Instruments = Row("filename", "instruments")
     Filename_Instrument = Row("filename", "instrument")
     # stores (filename, list(instrument))
@@ -89,12 +81,14 @@ def read_midi_files():
     # stores (filename, instrument) This is denormalized format of above. A filename will have an entry for each instrument.
     filename_instrument_seq = []
 
+    # Read each MIDI file from AWS S3 bucket
     for obj in bucket.objects.all():
         number_of_files+=1
         s3_key = obj.key
         midi_obj_stream = boto_client.get_object(Bucket=s3_bucket, Key=s3_key)
         midi_obj = BytesIO(midi_obj_stream['Body'].read())
         try:
+            # Try required as a few MIDI files are invalid.
             pretty_midi_obj = pretty_midi.PrettyMIDI(midi_obj)
             number_of_valid_files+=1
             filename = s3_key
@@ -107,6 +101,7 @@ def read_midi_files():
             if(len(instruments_list_uniq) >=3):
                 filename_instruments_seq.append(File_Instruments(filename,instruments_str))
         except:
+            # Invalid MIDI files are stored.
             invalid_files.append(s3_key)
     time_seq.append(['end read-file', time.time()])
     df_filename_instrument = spark.createDataFrame(filename_instrument_seq)

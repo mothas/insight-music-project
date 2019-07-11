@@ -107,7 +107,7 @@ def get_songs_for_instruments():
         conn = psycopg2.connect(dbname=config.PGSQL_DBNAME, user=config.PGSQL_USER, password=config.PGSQL_PASSWORD, host=config.PGSQL_HOST, port=config.PGSQL_PORT)
         cur = conn.cursor()
         cur.execute(query)
-        filenames = list(map(lambda x: {'filename': x[0], 'song_name': x[1], 'num_of_inst': x[2], 'num_of_simSongs': x[3] }, cur))
+        filenames = list(map(lambda x: {'filename': x[0], 'song_name': clean_text(x[1]), 'num_of_inst': x[2], 'num_of_simSongs': x[3] }, cur))
         cur.close()
         conn.close()
         return jsonify(filenames)
